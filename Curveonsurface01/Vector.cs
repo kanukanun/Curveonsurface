@@ -15,6 +15,7 @@ namespace _5.Classes
         private int width;
         private int height;
         private List<Point3d> pop = new List<Point3d>();
+        private Curve crv;
 
         public CrvonSrf(
             int _number,
@@ -40,66 +41,35 @@ namespace _5.Classes
             }
         }
 
-        
-        //private double TriangleArea(Point3d p0 , Point3d p1 , Point3d p2)
-        //{
-        //    double s;
-        //    double half;
-        //    Line l1 , l2 , l3;
+        public void CreateCrv()
+        {
+            crv = Curve.CreateInterpolatedCurve(pop, 3);
+        }
 
-        //    l1 = new Line(p0 , p1);
-        //    l2 = new Line(p1 , p2);
-        //    l3 = new Line(p2 , p0);
-        //    half = (l1.Length + l2.Length + l3.Length) / 2;
-        //    s = Math.Sqrt(half * (half - l1.Length) * (half - l2.Length) * (half - l3.Length));
-            
-        //    return s;
-        //}
-        //private Vector3d NormalVector()//get normal vector in surface
-        //{
-        //    Vector3d normvec , ab , ad , cd , cb;
-        //    a1 = srf.PointAt(0 , 0);
-        //    b1 = srf.PointAt(100 , 0);
-        //    c1 = srf.PointAt(100 , 200);
-        //    d1 = srf.PointAt(0 , 200);
+        private Vector3d NormalVector(double t1 , double t2)
+        {
+            Vector3d normvec , v1, v2;
+            v1 = crv.CurvatureAt(t1);
+            v2 = crv.CurvatureAt(t2);
 
-        //    double s1 = TriangleArea(a1 , b1 , d1);
-        //    double s2 = TriangleArea(c1 , d1 , b1);
+            normvec = Vector3d.CrossProduct(v1 , v2);
 
-        //    double sum = s1 + s2;
+            return normvec;
+        }
 
-        //    ab = new Vector3d(b1) - new Vector3d(a1);
-        //    ad = new Vector3d(d1) - new Vector3d(a1);
-        //    cd = new Vector3d(d1) - new Vector3d(c1);
-        //    cb = new Vector3d(b1) - new Vector3d(c1);
+        public void DecideCoplanar()
+        {
+            double angle = Vector3d.VectorAngle(NormalVector(10, 20), NormalVector(5, 2));
 
-        //    normvec = Vector3d.CrossProduct(ab , ad) * (s1 / sum);
-        //    normvec += Vector3d.CrossProduct(cd, cb) * (s2 / sum);
-            
-        //    return normvec / normvec.Length;
-        //}
-
-        //private Point3d Center()
-        //{
-        //    Point3d center = srf.PointAt(50 , 100);
-        //    return center;
-        //}
-
-        //public void MoveSrf(int num)//pile of brick
-        //{
-        //    double ang = RhinoMath.ToRadians((angle / (num - 1)) * id);
-
-        //    bool flag2 = srf.Rotate(ang , NormalVector(), Center());
-
-        //    bool flag3 = srf.Rotate(ang, new Vector3d(0, 1, 0), Center());
-        //}
+            if(RhinoMath.ToRadians(angle) == 0)
+            {
+                RhinoApp.WriteLine("curve is coplanar");
+            }
+        }
         
         public void Display(RhinoDoc _doc)
         {
-            for (int i = 0; i < number; i++)
-            {
-                _doc.Objects.AddPoint(pop[i]);
-            }
+                _doc.Objects.AddCurve(crv);
         }
 
     }
