@@ -48,20 +48,41 @@ namespace _5.Classes
 
         private Vector3d NormalVector(double t1 , double t2)
         {
+            double ax, ay, az, bx, by, bz;
             Vector3d normvec , v1, v2;
             v1 = crv.CurvatureAt(t1);
             v2 = crv.CurvatureAt(t2);
 
-            normvec = Vector3d.CrossProduct(v1 , v2);
+            ax = v1.X;
+            ay = v1.Y;
+            az = v1.Z;
+            bx = v2.X;
+            by = v2.Y;
+            bz = v2.Z;
 
+            normvec = new Vector3d(ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx);
             return normvec;
         }
 
         public void DecideCoplanar()
         {
-            double angle = Vector3d.VectorAngle(NormalVector(10, 20), NormalVector(5, 2));
+            double cx, cy, cz, dx, dy, dz , angle;
+            Vector3d nv1, nv2;
+            nv1 = NormalVector(8, 9);
+            nv2 = NormalVector(5, 2);
 
-            if(RhinoMath.ToRadians(angle) == 0)
+            cx = nv1.X;
+            cy = nv1.Y;
+            cz = nv1.Z;
+            dx = nv2.X;
+            dy = nv2.Y;
+            dz = nv2.Z;
+
+            angle = Math.Acos((cx * dx + cy * dy + cz * dz) / (nv1.Length * nv2.Length));
+
+            RhinoApp.WriteLine(String.Format("{0}", angle));
+
+            if(angle == 0 || angle == Math.PI)
             {
                 RhinoApp.WriteLine("curve is coplanar");
             }
