@@ -15,11 +15,14 @@ namespace _5.Classes
         public override void Setup()
         {
             cos = new CrvonSrf(10, 300, 300);
+            cos.MakePoint();
+            cos.CreateCrv();
+            cos.DecideCoplanar();
+            
         }
         
         public override void Draw()
         {
-            cos.MakePoint();
             cos.Display(doc);
         }
     }
